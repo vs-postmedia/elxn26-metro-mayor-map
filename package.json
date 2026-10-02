@@ -1,5 +1,5 @@
 {
-	"name": "svelte-template",
+	"name": "elxn26-metro-mayors-map",
 	"version": "0.0.1",
 	"private": true,
 	"scripts": {
@@ -22,8 +22,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"d3-dsv": "^3.0.1",
-		"maplibre-gl": "^5.14.0",
-		"svelte-select": "^5.7.0"
+		"d3-array": "^3.2.4",
+		"d3-scale": "^4.0.2"
 	}
 }

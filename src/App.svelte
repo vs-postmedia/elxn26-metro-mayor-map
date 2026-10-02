@@ -1,85 +1,108 @@
 <script>
     // COMPONENTS
     import { onMount } from 'svelte';
-    import { csvParse } from 'd3-dsv';
-    import Chart from "$components/Chart.svelte";
-    import Map from "$components/Map.svelte";
-    import Select from "svelte-select"; // https://github.com/rob-balfre/svelte-select
+    import MetroTileMap from "$components/MetroTileMap.svelte";
 
     // DATA
-    // import data from "$data/data.js";
-    import { menuItems } from "$data/menu-items";
-    const dataUrl = 'https://raw.githubusercontent.com/ajstarks/dubois-data-portraits/master/challenge/2024/challenge03/data.csv';
-    const mapDataUrl = 'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/misc/mobi-top-bike-data.csv';
+    // TEST CODE
+    let currentURL = 0;
+    const dataURLs = [
+        'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json',
+        'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json'
+    ];
+    // const dataUrl = 'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json';
 
     // VARIABLES
+    const refreshInterval = 10; // in minutes
     let data = $state();
-    let mapData = $state();
-    let value = $state();
-    const defaultSelectValue = menuItems[0].value;
-
-    // create .env in root dir & add VITE_MAPTILER_API_KEY for Map.svelte
-    const apiKey = import.meta.env.VITE_MAPTILER_API_KEY;
+    let timestamp = $state();
 
     async function fetchData(url) {
         const resp = await fetch(url);
-        const data = await resp.text();
 
-        return csvParse(data);
+        if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
+        }
+
+        const json = await resp.json();
+
+        return json;
     }
 
-    function updateData(nextValue) {
-        if (!nextValue || !nextValue.value) return;
 
-        value = nextValue;
-        console.log(nextValue);
-    }
 
     async function init() {
         // fetch remote data
-        data = await fetchData(dataUrl);
-
-        // fetch map data
-        mapData = await fetchData(mapDataUrl);
-
-        // default display selector value
-        value = defaultSelectValue;
-
-        console.log(mapData);
+        let json = await fetchData(dataURLs[0]);
+        data = json.data;
+        timestamp = json.timestamp;
     }
 
-    onMount(init);
+    onMount(() => {
+        init();
+
+        const refreshData = setInterval(async () => {
+            if (currentURL === 0) {
+                currentURL = 1;
+            } else {
+                currentURL = 0
+            }
+
+            let json = await fetchData(dataURLs[currentURL]);
+            data = json.data;
+            timestamp = json.timestamp;
+        }, refreshInterval * 60 * 1000);
+
+        return () => clearInterval(refreshData);
+    });
 </script>
 
 <header>
-    <h1>VS SvelteKit Template</h1>
-    <p class="subhead">Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+    <h1>Metro Mayors race</h1>
+    <p class="subhead">Margin of victory</p>
+    <p class="timestamp">Last update: {timestamp}</p>
 </header>
 
 <main>
-    <Select items={menuItems}
-        bind:value
-        change={updateData}
-        placeholder="Pick a city..."
-		showChevron="true"
-		listOpen={false}
-    />
-    
-    <Chart 
-        data={data}
-        value={value}
-    />
-    {#if mapData}
-        <Map
-            apiKey={apiKey}
-            data={mapData}
-        />
-    {/if}
+    <section class="legend">
+        <div class="legend-title">Margin of Victory</div>
+        <div class="legend-items">
+            <div class="legend-item">
+            <span class="swatch blue"></span>
+            &lt;5%
+            </div>
+            <div class="legend-item">
+            <span class="swatch green"></span>
+            5–15%
+            </div>
+            <div class="legend-item">
+            <span class="swatch orange"></span>
+            15–30%
+            </div>
+            <div class="legend-item">
+            <span class="swatch purple"></span>
+            30%+
+            </div>
+            <div class="legend-item">
+            <span class="swatch grey"></span>
+            Acclaimed
+            </div>
+        </div>
+        <div class="note">
+        ← Swipe horizontally →
+        </div>
+    </section>
+
+    <section class="viewport">
+        <MetroTileMap 
+                data={data}
+            />
+    </section>
 </main>
 
 <footer>
     <p class="note">NOTE: tk.</p>
-    <p class="source">Source:  <a href="https:vancouversun.com" target="_blank">TK</a></p>
+    <p class="source">Source:  <a href="https://www.civicinfo.bc.ca/election-results" target="_blank">CivicInfo B.C.</a></p>
 </footer>
   
 <style>
@@ -100,20 +123,127 @@
 		text-align: center;
 	}
 
-    /* COMBOBOX SELECTOR */
-  	:global(.svelte-select) {
-		margin: 1rem auto !important;
-		max-width: 250px;
-  	}
-  	:global(input:focus) {
-		outline: none;
-  	}
+    :global(p.timestamp) {
+        color: var(--grey03) !important;
+        font-family: 'BentonSansCond-RegItalic', italic !important;
+        font-size: 1rem;
+        margin: 0 auto 2vh 0;
+        text-align: center;
+    }
 
-	:global(
-		.svelte-select .selected-item,
-		.svelte-select .item,
-		.svelte-select input
-	) {
-		font-family: 'BentonSansCond-Regular', sans;
-	}
+
+    * {
+        box-sizing: border-box;
+    }
+
+    .legend {
+        padding: 12px 20px;
+        background: #fafafa;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .legend-title {
+        font-size: 11px;
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: .08em;
+        color: #666;
+        margin-bottom: 8px;
+    }
+
+    .legend-items {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+    }
+
+    .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+
+    .note {
+        padding: 10px 20px;
+        font-size: 13px;
+        color: #666;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .viewport {
+        overflow-x: auto;
+        padding: 16px;
+    }
+
+    .map {
+        width: 1040px;
+        display: grid;
+        grid-template-columns:
+        repeat(9, 100px);
+        grid-template-rows:
+        repeat(6, 100px);
+        gap: 12px;
+    }
+
+    .tile {
+    width: 100px;
+    height: 100px;
+    border-radius: 16px;
+    padding: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+    }
+
+    .city {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    opacity: .85;
+    }
+
+    .name {
+    font-size: 13px;
+    font-weight: 700;
+    }
+
+    .margin {
+    font-size: 22px;
+    font-weight: 900;
+    line-height: 1;
+    }
+
+    /* Classes */
+    .blue {
+        background: #0f62a5;
+    }
+
+    .green {
+        background: #148a68;
+    }
+
+    .orange {
+        background: #d69b18;
+    }
+
+    .purple {
+        background: #8d4191;
+    }
+
+    .deep-purple {
+        background: #652b7c;
+    }
+
+    .grey {
+        background: #6b7280;
+    }
 </style>
