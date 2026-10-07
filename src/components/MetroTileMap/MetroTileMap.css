@@ -1,0 +1,27 @@
+.map-wrapper {
+    position: relative;
+    width: 1040px;
+    min-height: 620px;
+}
+.map {
+    position: relative;
+    z-index: 1;
+    width: 1040px;
+    display: grid;
+    grid-template-columns: repeat(8, 110px);
+    grid-template-rows: repeat(6, 110px);
+    gap: 8px;
+    transform: translate(5px, 10px);
+}
+.map-bg {
+    position: absolute;
+    inset: 0;
+    /* background-position:center center; */
+    background-repeat: no-repeat;
+    background-size: 100%;
+    max-width: 950px;
+    opacity: .1;
+    pointer-events: none;
+    transform: translate(5px, -25px);
+    z-index: 2;
+}

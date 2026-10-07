@@ -1,7 +1,7 @@
 <script>
     // COMPONENTS
     import { onMount } from 'svelte';
-    import MetroTileMap from "$components/MetroTileMap.svelte";
+    import MetroTileMap from "$components/MetroTileMap/MetroTileMap.svelte";
 
     // DATA
     // TEST CODE
@@ -16,6 +16,41 @@
     const refreshInterval = 10; // in minutes
     let data = $state();
     let timestamp = $state();
+    const legendLightBlue = '#B9DDF2';
+    const legendDarkBlue = '#0062A3';
+
+    let movValues = $derived.by(() => {
+        return (data ?? [])
+            .map((tile) => Number(tile?.mov))
+            .filter((value) => Number.isFinite(value));
+    });
+
+    let movRange = $derived.by(() => {
+        if (!movValues.length) {
+            return { min: null, max: null };
+        }
+
+        return {
+            min: Math.min(...movValues),
+            max: Math.max(...movValues)
+        };
+    });
+
+    let midMov = $derived.by(() => {
+        if (!Number.isFinite(movRange.min) || !Number.isFinite(movRange.max)) {
+            return null;
+        }
+
+        return (movRange.min + movRange.max) / 2;
+    });
+
+    function formatMov(value) {
+        if (!Number.isFinite(value)) {
+            return '--';
+        }
+
+        return `${Math.round(value)}%`;
+    }
 
     async function fetchData(url) {
         const resp = await fetch(url);
@@ -66,28 +101,18 @@
 <main>
     <section class="legend">
         <div class="legend-title">Margin of Victory</div>
-        <div class="legend-items">
-            <div class="legend-item">
-            <span class="swatch blue"></span>
-            &lt;5%
-            </div>
-            <div class="legend-item">
-            <span class="swatch green"></span>
-            5–15%
-            </div>
-            <div class="legend-item">
-            <span class="swatch orange"></span>
-            15–30%
-            </div>
-            <div class="legend-item">
-            <span class="swatch purple"></span>
-            30%+
-            </div>
-            <div class="legend-item">
-            <span class="swatch grey"></span>
-            Acclaimed
+        <div class="legend-scale-wrap">
+            <div
+                class="legend-scale"
+                style="background: linear-gradient(90deg, {legendLightBlue} 0%, {legendDarkBlue} 100%);"
+            ></div>
+            <div class="legend-ticks">
+                <span>{formatMov(movRange.min)}</span>
+                <span>{formatMov(midMov)}</span>
+                <span>{formatMov(movRange.max)}</span>
             </div>
         </div>
+        <div class="legend-caption">Acclaimed municipalities are shown in grey.</div>
         <div class="note">
         ← Swipe horizontally →
         </div>
@@ -151,10 +176,29 @@
         margin-bottom: 8px;
     }
 
-    .legend-items {
+    .legend-scale-wrap {
+        max-width: 420px;
+    }
+
+    .legend-scale {
+        height: 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(0, 0, 0, 0.15);
+    }
+
+    .legend-ticks {
         display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
+        justify-content: space-between;
+        margin-top: 6px;
+        color: #2f3b45;
+        font-size: 12px;
+        font-family: 'BentonSansCond-Bold', sans-serif;
+    }
+
+    .legend-caption {
+        margin-top: 8px;
+        font-size: 12px;
+        color: #666;
     }
 
     .legend-item {
@@ -162,12 +206,6 @@
         align-items: center;
         gap: 6px;
         font-size: 12px;
-    }
-
-    .swatch {
-        width: 12px;
-        height: 12px;
-        border-radius: 3px;
     }
 
     .note {
@@ -190,60 +228,5 @@
         grid-template-rows:
         repeat(6, 100px);
         gap: 12px;
-    }
-
-    .tile {
-    width: 100px;
-    height: 100px;
-    border-radius: 16px;
-    padding: 10px;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0,0,0,.15);
-    }
-
-    .city {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: .05em;
-    opacity: .85;
-    }
-
-    .name {
-    font-size: 13px;
-    font-weight: 700;
-    }
-
-    .margin {
-    font-size: 22px;
-    font-weight: 900;
-    line-height: 1;
-    }
-
-    /* Classes */
-    .blue {
-        background: #0f62a5;
-    }
-
-    .green {
-        background: #148a68;
-    }
-
-    .orange {
-        background: #d69b18;
-    }
-
-    .purple {
-        background: #8d4191;
-    }
-
-    .deep-purple {
-        background: #652b7c;
-    }
-
-    .grey {
-        background: #6b7280;
     }
 </style>
