@@ -81,7 +81,7 @@
                 </div>
             {/each}
         </div>
-        <p class="legend-caption">Acclaimed municipalities are shown in grey.</p>
+        <p class="legend-caption">Acclaimed municipalities are shown in grey. Tap any city for details.</p>
         <p class="note">← Swipe horizontally →</p>
     </section>
 
