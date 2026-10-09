@@ -6,14 +6,11 @@
 
     // COMPONENTS
     import Tile from '$components/Tile/Tile.svelte';
-    import TilePopup from '$components/TilePopup/TilePopup.svelte';
     import backgroundImage from '$images/background-silhouette.jpg';
 
-    let { data = [] } = $props();
+    let { data = [], onTileClick } = $props();
 
     // VARS
-    let popupData = $state();
-    let mapWidth = $state(1040);
     const lightBlue = '#B9DDF2';
     const darkBlue = '#0062A3';
     const acclaimedGrey = '#6b7280';
@@ -26,7 +23,7 @@
 	};
 
     $effect(() => {
-        $inspect(data);
+        // $inspect(data);
     });
 
     let movExtent = $derived.by(() => {
@@ -68,35 +65,19 @@
 
     function handleTileClick(tile, event) {
         event.stopPropagation();
-        const mapBounds = event.currentTarget.closest('.map-wrapper').getBoundingClientRect();
-
-        popupData = {
-            ...tile,
-            x: event.clientX - mapBounds.left,
-            y: event.clientY - mapBounds.top
-        };
-    }
-
-    function closePopup() {
-        popupData = undefined;
+        onTileClick?.(tile);
     }
 
     // FUNCTIONS
-    function init() {
-        console.log('CHART INIT!')
-    }
     function addCommasToNumber(number) {
         return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
-
-    // LIGHTS! CAMERA! ACTION!
-    onMount(init);
 </script>
 
-<div class="map-wrapper" bind:clientWidth={mapWidth}>
+<div class="map-wrapper">
     <div class="map-bg" style="background-image: url('{backgroundImage}');"></div>
     <div class="map">
-        {#each data as tile}
+        {#each data as tile (tile.id)}
             <Tile
                 acclaimed={tile.acclaimed}
                 candidateName={tile.lead_name}
@@ -108,7 +89,4 @@
             />
         {/each}
     </div>
-    {#if popupData}
-        <TilePopup data={popupData} width={mapWidth} onClose={closePopup} />
-    {/if}
 </div>

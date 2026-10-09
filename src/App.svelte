@@ -2,20 +2,23 @@
     // COMPONENTS
     import { onMount } from 'svelte';
     import MetroTileMap from "$components/MetroTileMap/MetroTileMap.svelte";
+    import TilePopup from "$components/TilePopup/TilePopup.svelte";
 
     // DATA
     // TEST CODE
     let currentURL = 0;
     const dataURLs = [
         'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json',
-        'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json'
+        'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2022.json'
     ];
     // const dataUrl = 'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json';
 
     // VARIABLES
-    const refreshInterval = 10; // in minutes
+    const refreshInterval = 0.2; // in minutes
     let data = $state();
     let timestamp = $state();
+    let popupId = $state();
+    let popupData = $derived((data ?? []).find((tile) => tile.id === popupId));
     const legendLightBlue = '#B9DDF2';
     const legendDarkBlue = '#0062A3';
 
@@ -49,17 +52,19 @@
             return '--';
         }
 
-        return `${Math.round(value)}%`;
+        return `${Math.round(value)} pct. points`;
     }
 
     async function fetchData(url) {
-        const resp = await fetch(url);
+        const resp = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
 
         if (!resp.ok) {
             throw new Error(`HTTP ${resp.status} ${resp.statusText}`);
         }
 
         const json = await resp.json();
+
+        console.log(json)
 
         return json;
     }
@@ -100,7 +105,7 @@
 
 <main>
     <section class="legend">
-        <div class="legend-title">Margin of Victory</div>
+        <div class="legend-title">Leading/Margin of Victory</div>
         <div class="legend-scale-wrap">
             <div
                 class="legend-scale"
@@ -112,16 +117,20 @@
                 <span>{formatMov(movRange.max)}</span>
             </div>
         </div>
-        <div class="legend-caption">Acclaimed municipalities are shown in grey.</div>
-        <div class="note">
-        ← Swipe horizontally →
-        </div>
+        <p class="legend-caption">Acclaimed municipalities are shown in grey.</p>
+        <p class="note">← Swipe horizontally →</p>
     </section>
 
     <section class="viewport">
         <MetroTileMap 
                 data={data}
+                onTileClick={(tile) => (popupId = tile.id)}
             />
+        {#if popupData}
+            <div class="popup-layer">
+                <TilePopup data={popupData} onClose={() => (popupId = undefined)} />
+            </div>
+        {/if}
     </section>
 </main>
 
@@ -135,98 +144,4 @@
     @import '$css/fonts.css';
     @import '$css/colors.css';
     @import '$css/app.css';
-
-    header {
-		margin-bottom: 2rem;
-	}
-	header > h1 {
-		text-align: center;
-	}
-	header .subhead {
-		margin: 0 auto;
-		max-width: 525px;
-		text-align: center;
-	}
-
-    :global(p.timestamp) {
-        color: var(--grey03) !important;
-        font-family: 'BentonSansCond-RegItalic', italic !important;
-        font-size: 1rem;
-        margin: 0 auto 2vh 0;
-        text-align: center;
-    }
-
-
-    * {
-        box-sizing: border-box;
-    }
-
-    .legend {
-        padding: 12px 20px;
-        background: #fafafa;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .legend-title {
-        font-size: 11px;
-        text-transform: uppercase;
-        font-weight: 700;
-        letter-spacing: .08em;
-        color: #666;
-        margin-bottom: 8px;
-    }
-
-    .legend-scale-wrap {
-        max-width: 420px;
-    }
-
-    .legend-scale {
-        height: 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-    }
-
-    .legend-ticks {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 6px;
-        color: #2f3b45;
-        font-size: 12px;
-        font-family: 'BentonSansCond-Bold', sans-serif;
-    }
-
-    .legend-caption {
-        margin-top: 8px;
-        font-size: 12px;
-        color: #666;
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-    }
-
-    .note {
-        padding: 10px 20px;
-        font-size: 13px;
-        color: #666;
-        border-bottom: 1px solid #ddd;
-    }
-
-    .viewport {
-        overflow-x: auto;
-        padding: 16px;
-    }
-
-    .map {
-        width: 1040px;
-        display: grid;
-        grid-template-columns:
-        repeat(9, 100px);
-        grid-template-rows:
-        repeat(6, 100px);
-        gap: 12px;
-    }
 </style>
