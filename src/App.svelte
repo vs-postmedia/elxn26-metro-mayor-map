@@ -9,10 +9,11 @@
     // TEST CODE
     let currentURL = 0;
     const dataURLs = [
-        'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json',
+        // 'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json',
+        'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/elxn/elxn2026/mayor-map-2026.json',
         'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2022.json'
     ];
-    // const dataUrl = 'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2026.json';
+    // const dataUrl = 'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/elxn/elxn2026/mayor-map-2026.json';
 
     // VARIABLES
     const refreshInterval = 0.2; // in minutes
@@ -64,8 +65,8 @@
 </script>
 
 <header>
-    <h1>Metro Mayors race</h1>
-    <p class="subhead">Margin of victory</p>
+    <h1>Metro’s mayoral races at a glance</h1>
+    <p class="subhead">See which candidates are leading their mayoral race and/or their margin of victory.</p>
     <p class="timestamp">Last update: {timestamp}</p>
 </header>
 

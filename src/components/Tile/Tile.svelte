@@ -4,6 +4,7 @@
   let { acclaimed, candidateName, cityName, elected, mov, tileColor = '#B9DDF2', onclick } = $props();
 
   let nameClass = $derived((cityName ?? '').toLowerCase().replace(/\s+/g, '-'));
+  let awaitingResults = $derived(acclaimed !== 'YES' && mov != null && Number(mov) === 0);
   let displayCityName = $derived.by(() => {
     if (cityName === 'North Vancouver City' || cityName === 'North Vancvouer City') {
       return 'North Van. (C)';
@@ -27,16 +28,20 @@
     <div>
         <div class="city">{displayCityName}</div>
         <div class="name">
-            {#if acclaimed === 'YES' || elected == 'YES'}
-                <span class='subtitle'>✅</span>
+            {#if awaitingResults}
+                Awaiting results
+            {:else}
+                {#if acclaimed === 'YES' || elected == 'YES'}
+                    <span class='subtitle'>✅</span>
+                {/if}
+                {candidateName}
             {/if}
-            {candidateName}
         </div>
     </div>
     <div class="margin">
          {#if acclaimed === 'YES'}
             <span class='acclaimed'>Acclaimed</span>
-        {:else}
+        {:else if !awaitingResults}
             +{mov}
         {/if}
     </div>
