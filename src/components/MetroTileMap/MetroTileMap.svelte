@@ -1,8 +1,7 @@
 <script>
     import './MetroTileMap.css';
     import { onMount } from 'svelte';
-    import { extent } from 'd3-array';
-    import { scaleLinear } from 'd3-scale';
+    import { getBinColor } from '../../lib/mov-bins.js';
 
     // COMPONENTS
     import Tile from '$components/Tile/Tile.svelte';
@@ -11,8 +10,6 @@
     let { data = [], onTileClick } = $props();
 
     // VARS
-    const lightBlue = '#B9DDF2';
-    const darkBlue = '#0062A3';
     const acclaimedGrey = '#6b7280';
 
     const margin = {
@@ -26,41 +23,12 @@
         // $inspect(data);
     });
 
-    let movExtent = $derived.by(() => {
-        const values = data
-            .map((tile) => Number(tile?.mov))
-            .filter((value) => Number.isFinite(value));
-
-        return extent(values);
-    });
-
-    let colorScale = $derived.by(() => {
-        const [minMov, maxMov] = movExtent;
-
-        if (!Number.isFinite(minMov) || !Number.isFinite(maxMov)) {
-            return null;
-        }
-
-        // Avoid a zero-width domain when all MOV values are identical.
-        const domainMax = minMov === maxMov ? minMov + 1 : maxMov;
-
-        return scaleLinear()
-            .domain([minMov, domainMax])
-            .range([lightBlue, darkBlue])
-            .clamp(true);
-    });
-
     function getTileColor(tile) {
         if (tile?.acclaimed === 'YES') {
             return acclaimedGrey;
         }
 
-        const mov = Number(tile?.mov);
-        if (!Number.isFinite(mov) || !colorScale) {
-            return lightBlue;
-        }
-
-        return colorScale(mov);
+        return getBinColor(Number(tile?.mov));
     }
 
     function handleTileClick(tile, event) {

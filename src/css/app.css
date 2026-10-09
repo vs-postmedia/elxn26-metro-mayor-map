@@ -113,23 +113,24 @@ body {
         margin-bottom: 8px;
     }
 
-    .legend-scale-wrap {
+    .legend-bins {
+        display: flex;
         max-width: 420px;
     }
 
-    .legend-scale {
-        height: 14px;
-        border-radius: 999px;
-        border: 1px solid rgba(0, 0, 0, 0.15);
-    }
-
-    .legend-ticks {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 6px;
+    .legend-bin {
+        flex: 1;
+        text-align: center;
         color: #2f3b45;
         font-size: 12px;
         font-family: 'BentonSansCond-Bold', sans-serif;
+        margin: 0 3px;
+        max-width: 40px;
+    }
+
+    .legend-swatch {
+        height: 14px;
+        margin-bottom: 6px;
     }
 
     .legend-caption {

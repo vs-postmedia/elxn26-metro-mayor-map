@@ -3,6 +3,7 @@
     import { onMount } from 'svelte';
     import MetroTileMap from "$components/MetroTileMap/MetroTileMap.svelte";
     import TilePopup from "$components/TilePopup/TilePopup.svelte";
+    import { movBins } from './lib/mov-bins.js';
 
     // DATA
     // TEST CODE
@@ -19,41 +20,6 @@
     let timestamp = $state();
     let popupId = $state();
     let popupData = $derived((data ?? []).find((tile) => tile.id === popupId));
-    const legendLightBlue = '#B9DDF2';
-    const legendDarkBlue = '#0062A3';
-
-    let movValues = $derived.by(() => {
-        return (data ?? [])
-            .map((tile) => Number(tile?.mov))
-            .filter((value) => Number.isFinite(value));
-    });
-
-    let movRange = $derived.by(() => {
-        if (!movValues.length) {
-            return { min: null, max: null };
-        }
-
-        return {
-            min: Math.min(...movValues),
-            max: Math.max(...movValues)
-        };
-    });
-
-    let midMov = $derived.by(() => {
-        if (!Number.isFinite(movRange.min) || !Number.isFinite(movRange.max)) {
-            return null;
-        }
-
-        return (movRange.min + movRange.max) / 2;
-    });
-
-    function formatMov(value) {
-        if (!Number.isFinite(value)) {
-            return '--';
-        }
-
-        return `${Math.round(value)} pct. points`;
-    }
 
     async function fetchData(url) {
         const resp = await fetch(`${url}?t=${Date.now()}`, { cache: 'no-store' });
@@ -105,17 +71,14 @@
 
 <main>
     <section class="legend">
-        <div class="legend-title">Leading/Margin of Victory</div>
-        <div class="legend-scale-wrap">
-            <div
-                class="legend-scale"
-                style="background: linear-gradient(90deg, {legendLightBlue} 0%, {legendDarkBlue} 100%);"
-            ></div>
-            <div class="legend-ticks">
-                <span>{formatMov(movRange.min)}</span>
-                <span>{formatMov(midMov)}</span>
-                <span>{formatMov(movRange.max)}</span>
-            </div>
+        <div class="legend-title">Leading/Margin of Victory (pct. points)</div>
+        <div class="legend-bins">
+            {#each movBins as bin}
+                <div class="legend-bin">
+                    <div class="legend-swatch" style="background: {bin.color};"></div>
+                    <span>{bin.label}</span>
+                </div>
+            {/each}
         </div>
         <p class="legend-caption">Acclaimed municipalities are shown in grey.</p>
         <p class="note">← Swipe horizontally →</p>
