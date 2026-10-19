@@ -45,8 +45,9 @@
 <div class="map-wrapper">
     <div class="map-bg" style="background-image: url('{backgroundImage}');"></div>
     <div class="map">
+        <div class="inset inset-border"></div>
         {#each data as tile (tile.id)}
-            <Tile
+        <Tile
                 acclaimed={tile.acclaimed}
                 candidateName={tile.lead_name}
                 cityName={tile.name}

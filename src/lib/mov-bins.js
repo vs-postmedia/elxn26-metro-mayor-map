@@ -1,5 +1,6 @@
 import { scaleLinear } from 'd3-scale';
 
+const awaitingResultsColor = '#bbb';
 const lightBlue = '#8dc5e6';
 const darkBlue = '#0062A3';
 
@@ -21,7 +22,7 @@ export const movBins = lowerBounds.map((min, i) => {
 
 export function getBinColor(mov) {
     if (!Number.isFinite(mov) || mov <= 0) {
-        return lightBlue;
+        return awaitingResultsColor;
     }
 
     return movBins.find((bin) => mov < bin.max).color;

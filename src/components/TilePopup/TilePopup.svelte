@@ -71,6 +71,6 @@
         </ul>
     {/if}
     <div class="footer">
-        <p>Find full election results for Metro Vancouver’s <a target="_blank" href="https://vs-postmedia.github.io/local-elxn-results/">mayor, council, school and park board races here</a>.</p>
+        <p>Find full election results for Metro Vancouver’s <a target="_blank" href="https://vancouversun.com/news/bc-municipal-election-2026-live-results-map">mayor, council, school and park board races here</a>.</p>
     </div>
 </div>

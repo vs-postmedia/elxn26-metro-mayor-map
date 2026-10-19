@@ -13,10 +13,10 @@
         'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/elxn/elxn2026/mayor-map-2026.json',
         'https://raw.githubusercontent.com/vs-postmedia/civic-info-bc-scraper/refs/heads/master/data/mayor-map-2022.json'
     ];
-    // const dataUrl = 'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/elxn/elxn2026/mayor-map-2026.json';
+    const dataURL = 'https://vs-postmedia-data.sfo2.digitaloceanspaces.com/elxn/elxn2026/mayor-map-2026.json';
 
     // VARIABLES
-    const refreshInterval = 0.2; // in minutes
+    const refreshInterval = 2; // in minutes
     let data = $state();
     let timestamp = $state();
     let popupId = $state();
@@ -49,13 +49,15 @@
         init();
 
         const refreshData = setInterval(async () => {
-            if (currentURL === 0) {
-                currentURL = 1;
-            } else {
-                currentURL = 0
-            }
+            // if (currentURL === 0) {
+            //     currentURL = 1;
+            // } else {
+            //     currentURL = 0
+            // }
 
-            let json = await fetchData(dataURLs[currentURL]);
+            // let json = await fetchData(dataURLs[currentURL]);
+
+            let json = await fetchData(dataURL);
             data = json.data;
             timestamp = json.timestamp;
         }, refreshInterval * 60 * 1000);
@@ -65,8 +67,8 @@
 </script>
 
 <header>
-    <h1>Metro’s mayoral races at a glance</h1>
-    <p class="subhead">See which candidates are leading their mayoral race and/or their margin of victory.</p>
+    <!-- <h1>Metro’s mayoral races at a glance</h1> -->
+    <!-- <p class="subhead">See which candidates are leading their mayoral race and/or their margin of victory.</p> -->
     <p class="timestamp">Last update: {timestamp}</p>
 </header>
 
@@ -81,8 +83,10 @@
                 </div>
             {/each}
         </div>
-        <p class="legend-caption">Acclaimed municipalities are shown in grey. Tap any city for details.</p>
-        <p class="note">← Swipe horizontally →</p>
+        <!-- <p class="legend-caption">Acclaimed municipalities are shown in grey. Tap any city for details.</p> -->
+        <p class="note">← Swipe left/right for full results. →
+            <br/>Tap city for details. Elected candidates marked with  ✅
+        </p>
     </section>
 
     <section class="viewport">
@@ -99,7 +103,7 @@
 </main>
 
 <footer>
-    <p class="note">NOTE: tk.</p>
+    <!-- <p class="note">NOTE: tk.</p> -->
     <p class="source">Source:  <a href="https://www.civicinfo.bc.ca/election-results" target="_blank">CivicInfo B.C.</a></p>
 </footer>
   

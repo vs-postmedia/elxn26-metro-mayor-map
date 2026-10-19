@@ -29,6 +29,10 @@
   text-shadow: 0 1px 2px rgba(31, 41, 55, 0.75);
 }
 
+.tile .check {
+    font-size: 0.75rem;
+}
+
 .tile .name {
   font-size: 0.9rem;
   font-family: 'BentonSansCond-Bold', sans-serif;
@@ -44,6 +48,11 @@
   font-size: 1.4rem;
   font-weight: 900;
   margin-top: 3px;
+}
+
+.tile .margin .lead {
+  font-family: 'BentonSansCond-Regular', sans-serif;
+  font-size: 0.85rem;
 }
 
 /* TILE PLACEMENT */
@@ -69,3 +78,9 @@
 .tile.vancouver { grid-column: 2; grid-row: 3; }
 .tile.west-vancouver { grid-column: 1; grid-row: 2; }
 .tile.white-rock { grid-column: 5; grid-row: 5; }
+
+/* INSET ADUSTMENTS */
+.tile.bowen-island,
+.tile.lions-bay {
+  margin-left: 25px;
+}
